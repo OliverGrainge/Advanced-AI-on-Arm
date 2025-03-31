@@ -8,19 +8,37 @@ from plotly.subplots import make_subplots
 from IPython.display import display, clear_output
 from pytorch_lightning.callbacks import Callback
 import numpy as np
-
+from vit_pytorch import ViT
 
 class CIFAR10Module(pl.LightningModule):
     def __init__(
         self,
-        model,  # Vision Transformer model
+        image_size = 32,     # CIFAR-10 images are 32x32
+        patch_size = 4,      # The size of the image path split into a single token
+        num_classes = 10,    # The number of classes in the dataset
+        dim = 512,           # The inner dimension of the model (number of channels in the tokens)
+        depth = 6,           # The number of transformer blocks
+        heads = 8,           # The number of attnetion heads per transformer block 
+        mlp_dim = 1024,      # The feedforward dimension of the MLP
+        dropout = 0.1,       # The dropout rate for the transformer
+        emb_dropout = 0.1 ,   # The dropout rate for the embedding
         learning_rate: float = 1e-4,
         input_transform = None,
         batch_size: int = 64,
         num_workers: int = 0
     ):
         super().__init__()
-        self.model = model
+        self.model = ViT(
+            image_size = 32,     # CIFAR-10 images are 32x32
+            patch_size = 4,      # The size of the image path split into a single token
+            num_classes = 10,    # The number of classes in the dataset
+            dim = 512,           # The inner dimension of the model (number of channels in the tokens)
+            depth = 6,           # The number of transformer blocks
+            heads = 8,           # The number of attnetion heads per transformer block 
+            mlp_dim = 1024,      # The feedforward dimension of the MLP
+            dropout = 0.1,       # The dropout rate for the transformer
+            emb_dropout = 0.1    # The dropout rate for the embedding
+        )
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.num_workers = num_workers

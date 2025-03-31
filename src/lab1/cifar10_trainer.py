@@ -25,8 +25,10 @@ class CIFAR10Module(pl.LightningModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         
-        # Use provided transform or default if None
+        # Standard CIFAR-10 augmentation
         self.transform = input_transform if input_transform is not None else transforms.Compose([
+            transforms.RandomCrop(32, padding=4),      # Random crop with padding
+            transforms.RandomHorizontalFlip(),         # Random horizontal flips
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
         ])
@@ -42,10 +44,29 @@ class CIFAR10Module(pl.LightningModule):
     def forward(self, x):
         return self.model(x)
 
+    def mixup_data(self, x, y, alpha=0.2):
+        if alpha > 0:
+            lam = np.random.beta(alpha, alpha)
+        else:
+            lam = 1
+
+        batch_size = x.size()[0]
+        index = torch.randperm(batch_size).cuda()
+
+        mixed_x = lam * x + (1 - lam) * x[index]
+        y_a, y_b = y, y[index]
+        return mixed_x, y_a, y_b, lam
+
     def training_step(self, batch, batch_idx):
         x, y = batch
-        logits = self(x)
-        loss = F.cross_entropy(logits, y)
+        # Apply mixup
+        mixed_x, y_a, y_b, lam = self.mixup_data(x, y)
+        logits = self(mixed_x)
+        
+        # Compute mixed loss
+        loss = lam * F.cross_entropy(logits, y_a, label_smoothing=0.1) + \
+               (1 - lam) * F.cross_entropy(logits, y_b, label_smoothing=0.1)
+        
         self.train_loss_history.append(loss.item())
         self.log('train_loss', loss, prog_bar=True)
         return loss
@@ -86,15 +107,27 @@ class CIFAR10Module(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
-        return {
-            "optimizer": optimizer,
-            "lr_scheduler": {
-                "scheduler": scheduler,
-                "monitor": "val_loss"
-            }
+        optimizer = torch.optim.AdamW(
+            self.parameters(),
+            lr=self.learning_rate,
+            weight_decay=0.05  # Add weight decay
+        )
+        
+        # Warmup + cosine schedule
+        scheduler = {
+            "scheduler": torch.optim.lr_scheduler.OneCycleLR(
+                optimizer,
+                max_lr=self.learning_rate,
+                epochs=self.trainer.max_epochs,
+                steps_per_epoch=len(self.train_dataloader()),
+                pct_start=0.1,  # 10% warmup
+                div_factor=25,  # lr_start = max_lr/25
+                final_div_factor=1000,  # lr_final = lr_start/1000
+            ),
+            "interval": "step",
+            "frequency": 1
         }
+        return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
     def train_dataloader(self):
         dataset = datasets.CIFAR10(

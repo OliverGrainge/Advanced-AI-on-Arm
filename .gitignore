@@ -1,0 +1,7 @@
+scratch.py 
+*DS_Store 
+*.ipynb_checkpoints
+lightning_logs/
+*data
+data/ 
+*pyc

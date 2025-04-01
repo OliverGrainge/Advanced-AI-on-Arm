@@ -167,6 +167,7 @@ class CIFAR10Module(pl.LightningModule):
             root='./data',
             train=False,
             download=True,
+            shuffle=False,
             transform=self.transform
         )
         return DataLoader(
@@ -217,8 +218,6 @@ class PlotlyCallback(Callback):
             steps = []
             for step in np.arange(0, 1.01, 0.1):
                 train_loss_smooth = self.ema_smooth(pl_module.train_loss_history, weight=step)
-                val_loss_smooth = self.ema_smooth(pl_module.val_loss_history, weight=step)
-                val_acc_smooth = self.ema_smooth(pl_module.val_acc_history, weight=step)
                 
                 step_traces = [
                     go.Scatter(
@@ -230,14 +229,14 @@ class PlotlyCallback(Callback):
                     ),
                     go.Scatter(
                         x=val_steps,
-                        y=val_loss_smooth,
+                        y=pl_module.val_loss_history,
                         name="Validation Loss",
                         line=dict(color='orange'),
                         visible=False
                     ),
                     go.Scatter(
                         x=val_steps,
-                        y=val_acc_smooth,
+                        y=pl_module.val_acc_history,
                         name="Validation Accuracy",
                         line=dict(color='green'),
                         visible=False
@@ -265,7 +264,7 @@ class PlotlyCallback(Callback):
             # Add slider
             sliders = [dict(
                 active=0,
-                currentvalue={"prefix": "Smoothing: "},
+                currentvalue={"prefix": "Training Loss Smoothing: "},
                 pad={"t": 50},
                 steps=steps
             )]

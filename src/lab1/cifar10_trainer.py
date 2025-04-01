@@ -167,7 +167,6 @@ class CIFAR10Module(pl.LightningModule):
             root='./data',
             train=False,
             download=True,
-            shuffle=False,
             transform=self.transform
         )
         return DataLoader(

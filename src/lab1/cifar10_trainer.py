@@ -32,7 +32,7 @@ class TinyImageNetDataset(Dataset):
         
         
 
-class CIFAR10Module(pl.LightningModule):
+class TinyImagenetModule(pl.LightningModule):
     def __init__(
         self,
         image_size = 64,     # Tiny ImageNet images are 64x64

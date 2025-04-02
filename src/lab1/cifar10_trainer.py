@@ -2,39 +2,62 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from IPython.display import display, clear_output
 from pytorch_lightning.callbacks import Callback
 import numpy as np
 from vit_pytorch import ViT
+from datasets import load_dataset
+
+
+class TinyImageNetDataset(Dataset):
+    def __init__(self, split='train', transform=None):
+        super().__init__()
+        self.split = split
+        self.transform = transform
+        self.data = load_dataset("zh-plus/tiny-imagenet")[split]
+
+    def __len__(self): 
+        return len(self.data)
+    
+    def __getitem__(self, index): 
+        item = self.data[index]
+        image = item['image']  # This is already a PIL Image
+        label = item['label']
+        if self.transform is not None: 
+            image = self.transform(image)
+        return image, label
+        
+        
 
 class CIFAR10Module(pl.LightningModule):
     def __init__(
         self,
-        image_size = 32,     # CIFAR-10 images are 32x32
-        patch_size = 4,      # The size of the image path split into a single token
-        num_classes = 10,    # The number of classes in the dataset
+        image_size = 64,     # Tiny ImageNet images are 64x64
+        patch_size = 8,      # Larger patches (8x8) for better efficiency with 64x64 images
+        num_classes = 200,   # Tiny ImageNet has 200 classes
         dim = 512,           # The inner dimension of the model (number of channels in the tokens)
         depth = 6,           # The number of transformer blocks
-        heads = 8,           # The number of attnetion heads per transformer block 
+        heads = 8,           # The number of attention heads per transformer block 
         mlp_dim = 1024,      # The feedforward dimension of the MLP
         dropout = 0.1,       # The dropout rate for the transformer
-        emb_dropout = 0.1 ,   # The dropout rate for the embedding
+        emb_dropout = 0.1,   # The dropout rate for the embedding
         learning_rate: float = 1e-4,
         input_transform = None,
         batch_size: int = 64,
         num_workers: int = 0
     ):
         super().__init__()
+        self.save_hyperparameters()
         self.model = ViT(
-            image_size = 32,     # CIFAR-10 images are 32x32
-            patch_size = 4,      # The size of the image path split into a single token
-            num_classes = 10,    # The number of classes in the dataset
+            image_size = 64,     # Tiny ImageNet images are 64x64
+            patch_size = 8,      # Larger patches (8x8) for better efficiency with 64x64 images
+            num_classes = 200,   # Tiny ImageNet has 200 classes
             dim = 512,           # The inner dimension of the model (number of channels in the tokens)
             depth = 6,           # The number of transformer blocks
-            heads = 8,           # The number of attnetion heads per transformer block 
+            heads = 8,           # The number of attention heads per transformer block 
             mlp_dim = 1024,      # The feedforward dimension of the MLP
             dropout = 0.1,       # The dropout rate for the transformer
             emb_dropout = 0.1    # The dropout rate for the embedding
@@ -43,12 +66,23 @@ class CIFAR10Module(pl.LightningModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         
-        # Standard CIFAR-10 augmentation
+        # Standard Tiny ImageNet augmentation
         self.transform = input_transform if input_transform is not None else transforms.Compose([
-            transforms.RandomCrop(32, padding=4),      # Random crop with padding
+            transforms.Lambda(lambda img: img.convert("RGB")),
+            transforms.RandomCrop(64, padding=4),      # Random crop with padding
             transforms.RandomHorizontalFlip(),         # Random horizontal flips
+            transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4), # Color augmentation
             transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+            transforms.ConvertImageDtype(torch.float32),  # Ensure correct dtype
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # ImageNet statistics
+        ])
+        
+        # Validation transform without augmentations
+        self.val_transform = transforms.Compose([
+            transforms.Lambda(lambda img: img.convert("RGB")),
+            transforms.ToTensor(),
+            transforms.ConvertImageDtype(torch.float32),  # Ensure correct dtype
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
         # Track metrics history
@@ -58,6 +92,23 @@ class CIFAR10Module(pl.LightningModule):
         
         # Add these for proper validation metric collection
         self.validation_step_outputs = []
+        
+        # Initialize dataset attributes
+        self.train_dataset = None
+        self.val_dataset = None
+
+    def setup(self, stage=None):
+        """Setup datasets for training and validation."""
+        if stage == 'fit' or stage is None:
+            self.train_dataset = TinyImageNetDataset(
+                split='train',
+                transform=self.val_transform
+            )
+            
+            self.val_dataset = TinyImageNetDataset(
+                split='valid',
+                transform=self.val_transform
+            )
 
     def forward(self, x):
         return self.model(x)
@@ -133,29 +184,19 @@ class CIFAR10Module(pl.LightningModule):
         
         # Warmup + cosine schedule
         scheduler = {
-            "scheduler": torch.optim.lr_scheduler.OneCycleLR(
+            "scheduler": torch.optim.lr_scheduler.CosineAnnealingLR(
                 optimizer,
-                max_lr=self.learning_rate,
-                epochs=self.trainer.max_epochs,
-                steps_per_epoch=len(self.train_dataloader()),
-                pct_start=0.1,  # 10% warmup
-                div_factor=25,  # lr_start = max_lr/25
-                final_div_factor=1000,  # lr_final = lr_start/1000
+                T_max=self.trainer.max_epochs - 1,  # Total epochs minus warmup
+                eta_min=1e-6
             ),
-            "interval": "step",
+            "interval": "epoch",
             "frequency": 1
         }
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
     def train_dataloader(self):
-        dataset = datasets.CIFAR10(
-            root='./data',
-            train=True,
-            download=True,
-            transform=self.transform
-        )
         return DataLoader(
-            dataset,
+            self.train_dataset,
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
@@ -163,14 +204,8 @@ class CIFAR10Module(pl.LightningModule):
         )
 
     def val_dataloader(self):
-        dataset = datasets.CIFAR10(
-            root='./data',
-            train=False,
-            download=True,
-            transform=self.transform
-        )
         return DataLoader(
-            dataset,
+            self.val_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,

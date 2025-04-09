@@ -66,6 +66,7 @@ class TinyImagenetModule(pl.LightningModule):
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.weight_decay = weight_decay
         
         # Standard Tiny ImageNet augmentation
         self.transform = input_transform if input_transform is not None else transforms.Compose([

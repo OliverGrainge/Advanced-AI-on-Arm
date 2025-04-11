@@ -98,13 +98,17 @@ class CustomBPETokenizer:
             shutil.rmtree(self.temp_dir)
 
 class TinyShakespeareDataset(Dataset):
-    def __init__(self, split='train', tokenizer=None, sequence_length=128, max_samples=None, vocab_size=8192, 
+    def __init__(self, split='train', tokenizer=None, sequence_length=128, max_samples=None, vocab_size=1024, 
                  train_test_split=0.9, val_test_split=0.5):
         self.sequence_length = sequence_length
         
+        # Create data directory if it doesn't exist
+        data_dir = os.path.join(os.getcwd(), "data")
+        os.makedirs(data_dir, exist_ok=True)
+        
         # Download tiny Shakespeare dataset if needed
         data_url = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
-        shakespeare_path = os.path.join(tempfile.gettempdir(), "tinyshakespeare.txt")
+        shakespeare_path = os.path.join(data_dir, "tinyshakespeare.txt")
         
         if not os.path.exists(shakespeare_path):
             print(f"Downloading Tiny Shakespeare dataset...")
@@ -278,7 +282,7 @@ class TransformerBlock(torch.nn.Module):
 class AutoRegressiveTransformer(torch.nn.Module):
     def __init__(
         self,
-        vocab_size=8192,
+        vocab_size=1024,
         d_model=256,
         nhead=8,
         num_layers=6,
@@ -338,7 +342,7 @@ class AutoRegressiveTransformer(torch.nn.Module):
 class ShakespeareModule(pl.LightningModule):
     def __init__(
         self,
-        vocab_size=8192,
+        vocab_size=1024,
         d_model=128,
         nhead=8,
         num_layers=8,

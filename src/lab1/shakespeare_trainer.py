@@ -20,6 +20,9 @@ import tempfile
 import shutil
 import numpy as np 
 
+
+torch.set_float32_matmul_precision('high')
+
 class CustomBPETokenizer:
     def __init__(self, vocab_size=4096, min_frequency=2):
         self.vocab_size = vocab_size

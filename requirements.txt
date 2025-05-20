@@ -1,5 +1,0 @@
-python==3.13 
-torch 
-torchvision 
-pytorch-lightning 
-numpy

@@ -398,51 +398,45 @@ class ShakespeareModule(pl.LightningModule):
 
     def setup(self, stage=None):
         """Setup datasets for training and validation."""
-        if stage == 'fit' or stage is None:
             # Check if we're loading from a checkpoint
-            if self.tokenizer is None:
-                # Create a shared tokenizer for both train and validation
-                self.tokenizer = CustomBPETokenizer(vocab_size=self.vocab_size)
-                
-                # Create a temporary dataset to train the tokenizer
-                temp_dataset = TinyShakespeareDataset(
-                    split='train',
-                    tokenizer=None,
-                    sequence_length=self.sequence_length,
-                    vocab_size=self.vocab_size,
-                    max_samples=self.max_train_samples
-                )
-                self.tokenizer = temp_dataset.tokenizer
+        if self.tokenizer is None:
+            # Create a shared tokenizer for both train and validation
+            self.tokenizer = CustomBPETokenizer(vocab_size=self.vocab_size)
             
-            # Now create the actual datasets with the trained tokenizer
-            self.train_dataset = TinyShakespeareDataset(
+            # Create a temporary dataset to train the tokenizer
+            temp_dataset = TinyShakespeareDataset(
                 split='train',
-                tokenizer=self.tokenizer,
+                tokenizer=None,
                 sequence_length=self.sequence_length,
-                max_samples=self.max_train_samples,
                 vocab_size=self.vocab_size,
+                max_samples=self.max_train_samples
             )
-            
-            self.val_dataset = TinyShakespeareDataset(
-                split='validation', 
-                tokenizer=self.tokenizer,
-                sequence_length=self.sequence_length,
-                max_samples=self.max_val_samples,
-                vocab_size=self.vocab_size,
-            )
+            self.tokenizer = temp_dataset.tokenizer
         
-        elif stage == 'test':
-            # For testing, we need to load the tokenizer from the training stage
-            if self.tokenizer is None:
-                raise ValueError("Tokenizer not initialized. Run training first.")
-                
-            self.test_dataset = TinyShakespeareDataset(
-                split='test',
-                tokenizer=self.tokenizer,
-                sequence_length=self.sequence_length,
-                max_samples=self.max_test_samples,
-                vocab_size=self.vocab_size,
-            )
+        # Now create the actual datasets with the trained tokenizer
+        self.train_dataset = TinyShakespeareDataset(
+            split='train',
+            tokenizer=self.tokenizer,
+            sequence_length=self.sequence_length,
+            max_samples=self.max_train_samples,
+            vocab_size=self.vocab_size,
+        )
+        
+        self.val_dataset = TinyShakespeareDataset(
+            split='validation', 
+            tokenizer=self.tokenizer,
+            sequence_length=self.sequence_length,
+            max_samples=self.max_val_samples,
+            vocab_size=self.vocab_size,
+        )
+
+        self.test_dataset = TinyShakespeareDataset(
+            split='test',
+            tokenizer=self.tokenizer,
+            sequence_length=self.sequence_length,
+            max_samples=self.max_test_samples,
+            vocab_size=self.vocab_size,
+        )
 
     def forward(self, x):
         return self.model(x)

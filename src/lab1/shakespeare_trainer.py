@@ -421,7 +421,14 @@ class ShakespeareModule(pl.LightningModule):
             max_samples=self.max_train_samples,
             vocab_size=self.vocab_size,
         )
-        
+
+        self.val_dataset = TinyShakespeareDataset(
+            split='validation',
+            tokenizer=self.tokenizer,
+            sequence_length=self.sequence_length,
+            max_samples=self.max_val_samples,
+            vocab_size=self.vocab_size,
+        )
 
         self.test_dataset = TinyShakespeareDataset(
             split='test',
@@ -514,7 +521,7 @@ class ShakespeareModule(pl.LightningModule):
 
     def val_dataloader(self):
         return DataLoader(
-            self.test_dataset,
+            self.val_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,

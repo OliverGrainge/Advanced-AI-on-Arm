@@ -205,6 +205,7 @@ fun Button(viewModel: MainViewModel, dm: DownloadManager, item: Downloadable) {
 }
 ```
 
+Press the Play button <img src="assets/lab3/play.png" alt="LLaMA Android App UI" width="30"/> in android studio to push the application to the device, and initialize the activation space. We haven't pushed the models yet so you won't be able to lod them. We can fix that in the next step. 
 
 ---
 

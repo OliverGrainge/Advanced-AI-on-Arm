@@ -1,0 +1,2 @@
+*.pkl filter=lfs diff=lfs merge=lfs -text
+src/lab1/checkpoints/pretrained/*.ckpt filter=lfs diff=lfs merge=lfs -text

@@ -1,4 +1,4 @@
-# Lab: **Running & Quantizing ****\`\`**** Models on Android**
+# Lab 3: **Running & Quantizing ****\`\`**** Models on Android**
 
 This lab provides a hands-on walkthrough of how to run and optimize compact large language models (LLMs) directly on Android devices using the `llama.cpp` framework. You'll explore the full workflow, including downloading, converting, quantizing, deploying, and benchmarking LLaMA-style models. By the end, you'll have a working offline mobile LLM capable of running locally without server dependencies in an on-device android application.
 

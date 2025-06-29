@@ -1,0 +1,14 @@
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+torch==2.5.1+cu121
+pytorch-lightning>=2.2.0
+matplotlib
+ipywidgets
+jupyterlab
+tqdm
+transformers
+tokenizers
+numpy
+huggingface_hub
+plotly
+datasets

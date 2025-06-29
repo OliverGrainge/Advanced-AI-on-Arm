@@ -12,3 +12,4 @@ numpy
 huggingface_hub
 plotly
 datasets
+hyperopt

@@ -171,7 +171,7 @@ To Quantize, we can use the llama.cpp tools. **On your computer**, run:
 
 ## Step 10: Enable Debugging mode and modify the app to use local models
 
-First to enable debugging mode on your phone, do the following:
+First to enable debugging mode on your phone, do the following on your **mobile**:
 
 1. Enable USB debugging in Developer Options of you mobile:
    - Navigate to **Settings** > **About phone**
@@ -219,15 +219,15 @@ Press the Play button <img src="assets/lab3/play.png" alt="LLaMA Android App UI"
 
 ## Step 11: Push Quantized Models to Android Device
 
-2. Connect your device via USB cable and authorize your computer when prompted
+1. Connect your device via USB cable and authorize your computer when prompted
 
-3. Push the model files to device:
+2. Push the model files to device:
 
 ```bash
 adb push llama-models/*gguf* /sdcard/Android/data/com.example.llama/files/
 ```
 
-Verify files:
+Verify the files have been transferred with:
 
 ```bash
 adb shell ls /sdcard/Android/data/com.example.llama/files/
@@ -294,7 +294,6 @@ And you can summarize your findings in a table:
 
 This step gives you both a subjective impression of quality and a quantitative measure of model efficiency on-device.
 
----
 
 ---
 

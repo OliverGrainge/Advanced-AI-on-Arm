@@ -1,4 +1,4 @@
-# Lab 3: **Running & Quantizing ****\`\`**** Models on Android**
+# Lab 3: **Running & Quantizing Llama Models on Android**
 
 This lab provides a hands-on walkthrough of how to run and optimize compact large language models (LLMs) directly on Android devices using the `llama.cpp` framework. You'll explore the full workflow, including downloading, converting, quantizing, deploying, and benchmarking LLaMA-style models. By the end, you'll have a working offline mobile LLM capable of running locally without server dependencies in an on-device android application.
 
@@ -155,7 +155,7 @@ To Quantize, we can use the llama.cpp tools. **On your computer**, run:
 ./build/bin/llama-run llama-models/Llama-3.2-3B-Instruct-gguf-Q8_0 "What is quantization in the context of machine learning?"
 ```
 
->  Sanity check the model before deploying to Android.
+>  Sanity check the model before deploying to Android. The command should output a response from the model to your terminal.
 
 ---
 
@@ -169,9 +169,17 @@ To Quantize, we can use the llama.cpp tools. **On your computer**, run:
 
 ---
 
-## Step 10: Modify App to Use Local Models
+## Step 10: Enable Debugging mode and modify the app to use local models
 
-**In Android Studio on your computer**, edit the following files:
+First to enable debugging mode on your phone, do the following:
+
+1. Enable USB debugging in Developer Options of you mobile:
+   - Navigate to **Settings** > **About phone**
+   - Tap **Build number** 7 times to enable Developer options 
+   - Return to **Settings** > **Developer options**
+   - Toggle on **USB debugging**
+
+**Then In Android Studio on your computer**, edit the following files:
 
 **Edit** `llama.androic/app/src/java/com.example.llama/MainActivity.kt`
 Replace the `models = listOf(...)` section with:
@@ -205,17 +213,11 @@ fun Button(viewModel: MainViewModel, dm: DownloadManager, item: Downloadable) {
 }
 ```
 
-Press the Play button <img src="assets/lab3/play.png" alt="LLaMA Android App UI" width="30"/> in android studio to push the application to the device, and initialize the activation space. We haven't pushed the models yet so you won't be able to lod them. We can fix that in the next step. 
+Press the Play button <img src="assets/lab3/play.png" alt="LLaMA Android App UI" width="30"/> in android studio to push the application to the device, and initialize the activation space. We haven't pushed the models yet so you won't be able to load them. We can fix that in the next step. 
 
 ---
 
 ## Step 11: Push Quantized Models to Android Device
-
-1. Enable USB debugging in Developer Options of you mobile:
-   - Navigate to **Settings** > **About phone**
-   - Tap **Build number** 7 times to enable Developer options 
-   - Return to **Settings** > **Developer options**
-   - Toggle on **USB debugging**
 
 2. Connect your device via USB cable and authorize your computer when prompted
 

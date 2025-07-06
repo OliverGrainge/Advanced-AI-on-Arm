@@ -2,7 +2,7 @@
 
 This lab provides a hands-on walkthrough of how to run and optimize compact large language models (LLMs) directly on Android devices using the `llama.cpp` framework. You'll explore the full workflow, including downloading, converting, quantizing, deploying, and benchmarking LLaMA-style models. By the end, you'll have a working offline mobile LLM capable of running locally without server dependencies in an on-device android application.
 
-### 🧠 Learning Goals
+###  Learning Goals
 
 - Understand the toolchain for working with `llama.cpp`
 - Learn how model quantization reduces memory and compute requirements
@@ -13,7 +13,7 @@ This lab provides a hands-on walkthrough of how to run and optimize compact larg
 
 ---
 
-## Prerequisites 💻
+## Prerequisites 
 
 | Component           | Min version            | Why you need it                                       | Install hint                                                                 |
 | ------------------- | ---------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -24,7 +24,7 @@ This lab provides a hands-on walkthrough of how to run and optimize compact larg
 | **Android Studio**  | Hedgehog or newer      | includes **NDK** & **ADB** for building and deploying | [https://developer.android.com/studio](https://developer.android.com/studio) |
 | **Android device**  | Android 10+, ≥ 6GB RAM | target runtime                                        | any modern phone                                                             |
 
-> ⚠️ **Windows users:** use **WSL 2** with Ubuntu 22.04 for compatibility with build tools.
+>  **Windows users:** use **WSL 2** with Ubuntu 22.04 for compatibility with build tools.
 
 ---
 
@@ -91,7 +91,7 @@ cd ..
 mkdir llama-models && cd llama-models
 ```
 
-> 🧳 Organizing models in one place keeps your workflow tidy.
+>  Organizing models in one place keeps your workflow tidy.
 
 ---
 
@@ -103,7 +103,7 @@ mkdir llama-models && cd llama-models
 huggingface-cli download unsloth/Llama-3.2-3B-Instruct --repo-type model --local-dir ./Llama-3.2-3B-Instruct
 ```
 
-> 💪 **Tip:** Use a 1B model variant for devices with less RAM and storage.
+>  **Tip:** Use a 1B model variant for devices with less RAM and storage.
 
 ---
 
@@ -116,7 +116,7 @@ cd ../
 python convert_hf_to_gguf.py llama-models/Llama-3.2-3B-Instruct --outfile llama-models/Llama-3.2-3B-Instruct-gguf
 ```
 
-> 📀 **Why GGUF?** It's the native `llama.cpp` format that enables fast, memory-mapped loading and is portable across platforms.
+>  **Why GGUF?** It's the native `llama.cpp` format that enables fast, memory-mapped loading and is portable across platforms.
 
 ---
 
@@ -143,7 +143,7 @@ To Quantize, we can use the llama.cpp tools. **On your computer**, run:
 | Q4_K_M | 4-bit    | Balance of sizespeed     |
 | TQ2_0   | ~2-bit  | Tiny, fast, less accurate |
 
-> ⚖️ **Why Quantize?** Reduces memory and compute cost, enabling real-time use on mobile.
+>  **Why Quantize?** Reduces memory and compute cost, enabling real-time use on mobile.
 
 ---
 
@@ -155,7 +155,7 @@ To Quantize, we can use the llama.cpp tools. **On your computer**, run:
 ./build/bin/llama-run llama-models/Llama-3.2-3B-Instruct-gguf-Q8_0 "What is quantization in the context of machine learning?"
 ```
 
-> 🌟 Sanity check the model before deploying to Android.
+>  Sanity check the model before deploying to Android.
 
 ---
 
@@ -251,7 +251,7 @@ Llama-3.2-3B-Instruct-gguf-TQ2_0
 
 With the app installed and your models loaded onto the device, it's time to interact with them **on your Android phone**.
 
-### 🖼️ User Interface Overview
+###  User Interface Overview
 
 When the app opens **on your phone**, you'll see a simple interface with buttons to select your model, a text input field, and action buttons:
 
@@ -263,11 +263,11 @@ When the app opens **on your phone**, you'll see a simple interface with buttons
 
 This setup lets you evaluate both the usability and responsiveness of different quantized versions of the same model.
 
-> ⚠️ **Note:** Only one model can be loaded per app session. To switch models, fully close the app and rerun it via Android Studio.
+>  **Note:** Only one model can be loaded per app session. To switch models, fully close the app and rerun it via Android Studio.
 
 ---
 
-### 📈 Benchmarking Model Performance
+###  Benchmarking Model Performance
 
 To evaluate how each quantized model performs, tap the **Bench** button after loading a model. This will execute a benchmark routine that reports:
 
@@ -296,7 +296,7 @@ This step gives you both a subjective impression of quality and a quantitative m
 
 ---
 
-## ✅ Final Recap
+##  Final Recap
 
 - Built and tested `llama.cpp` locally
 - Converted and quantized a LLaMA model to GGUF

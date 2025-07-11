@@ -1,25 +1,25 @@
-# 🧪 Advanced AI on Arm
+# Advanced AI on Arm
 
 This course provides a hands-on introduction to *extreme model quantization*, *hardware-aware optimization*, and *on-device deployment* for generative AI models. You'll explore advanced techniques to reduce model size, accelerate inference, and deploy compact LLMs on edge devices like Android smartphones.
 
-## 🧬 Labs Overview
+## Labs Overview
 
-### 🔹 Lab 1: **Extreme Quantization**
+### Lab 1: **Extreme Quantization**
 Train a language model and progressively quantize it from FP32 to 8-bit, 4-bit, 2-bit, and 1-bit precision. Implement and evaluate **Quantization-Aware Training (QAT)** to mitigate accuracy degradation in ultra-low-bit models.
 
-### 🔹 Lab 2: **Hardware–Software Model Co-Design**
+### Lab 2: **Hardware–Software Model Co-Design**
 Wrap all `nn.Linear` layers with a custom `QLinear` module and explore **layerwise post-training quantization**. Search for the optimal bit-width configuration to maximize efficiency while maintaining model fidelity in a software-hardware co-design process.
 
-### 🔹 Lab 3: **Running & Quantizing Models on Android**
+### Lab 3: **Running & Quantizing Models on Android**
 Use [`llama.cpp`](https://github.com/ggerganov/llama.cpp) to quantize and deploy LLaMA-style LLMs on Android. Learn how to benchmark and run models *offline*, directly on your mobile hardware.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 This repository uses a unified `requirements.txt` and Git LFS to manage dependencies and large pretrained models.
 
-### 1️⃣ Clone the Repository and Download Model Weights
+### 1 Clone the Repository and Download Model Weights
 
 ```bash
 # Install Git LFS if needed
@@ -32,7 +32,7 @@ cd Advanced-AI-on-Arm
 git lfs pull
 ```
 
-### 2️⃣ Set Up the Python Environment
+### 2️ Set Up the Python Environment
 
 ```bash
 python3 -m venv venv
@@ -40,7 +40,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Run the Labs
+### 3️ Run the Labs
 
 ```bash
 jupyter lab
@@ -54,7 +54,7 @@ Open:
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 Advanced-AI-on-Arm/
@@ -69,7 +69,7 @@ Advanced-AI-on-Arm/
 
 ---
 
-## 📱 Android Deployment Notes
+## Android Deployment Notes
 
 To complete **Lab 3**, make sure the following are installed:
 
@@ -81,7 +81,7 @@ To complete **Lab 3**, make sure the following are installed:
 
 ---
 
-## 🧠 Learning Outcomes
+## Learning Outcomes
 
 - Understand bit-width trade-offs (accuracy vs. compression)
 - Apply QAT to recover performance in quantized models
@@ -90,7 +90,7 @@ To complete **Lab 3**, make sure the following are installed:
 
 ---
 
-## 📫 Questions?
+## Questions?
 
 Open an issue or contact `oliver@grainge.me` if you encounter problems during setup or execution.
 
